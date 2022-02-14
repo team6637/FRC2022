@@ -4,18 +4,22 @@
 
 package frc.robot.subsystems;
 
-import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
+import io.github.pseudoresonance.pixy2api.Pixy2;
+import io.github.pseudoresonance.pixy2api.links.SPILink;
 
 public class PixySubsystem extends SubsystemBase {
 
-  DigitalInput targetIsSeen = new DigitalInput(0);
+	private final Pixy2 pixy;
 
-  @Override
-  public void periodic() {
+	public PixySubsystem() {
+		pixy = Pixy2.createInstance(new SPILink());
+		pixy.init();
+	}
 
-      SmartDashboard.putBoolean("t", targetIsSeen.get());
-  }
-
+	public Pixy2 getPixy() {
+		return pixy;
+	}
 }
+
