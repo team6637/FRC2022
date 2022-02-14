@@ -53,4 +53,14 @@ public final class Constants {
     public static final int SHOOTER_RIGHT = 51;
     public static final int INDEXER = 53;
     public static final int INTAKE = 54;
+    public static final int LIFT_LEFT = 55;
+    public static final int LIFT_RIGHT = 56;
+    public static final int WINCH = 57;
+
+    // DIO
+    public static final int SHOOTER_ENCODER_1 = 0;
+    public static final int SHOOTER_ENCODER_2 = 1;
+    public static final int LEFT_LIFT_ENCODER = 3;
+    public static final int RIGHT_LIFT_ENCODER = 4;
+
 }

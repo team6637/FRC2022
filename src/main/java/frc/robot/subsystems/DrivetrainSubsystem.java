@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.sensors.Pigeon2;
 import com.ctre.phoenix.sensors.PigeonIMU;
 import com.swervedrivespecialties.swervelib.Mk3SwerveModuleHelper;
 import com.swervedrivespecialties.swervelib.SdsModuleConfigurations;
@@ -26,7 +27,7 @@ import static frc.robot.Constants.*;
 public class DrivetrainSubsystem extends SubsystemBase {
 
     // reduce to slow robot
-    public static final double MAX_VOLTAGE = 12.0;
+    public static final double MAX_VOLTAGE = 10.0;
 
     // <Motor free speed RPM> 6380.0 / 60 * <Drive reduction> * <Wheel diameter meters> * pi
     public static final double MAX_VELOCITY_METERS_PER_SECOND = 6380.0 / 60.0 *
@@ -160,7 +161,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
         // put pose info in SmartDashboard
         SmartDashboard.putNumber("pose x", getPose().getX());
         SmartDashboard.putNumber("pose y", getPose().getY());
-        SmartDashboard.putNumber("pose rotation", getPose().getRotation().getDegrees()); 
+        SmartDashboard.putNumber("pose rotation", getPose().getRotation().getDegrees());
         
         m_odometry.update(
             this.getGyroscopeRotation(),
