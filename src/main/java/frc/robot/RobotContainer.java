@@ -140,7 +140,7 @@ public class RobotContainer {
         } 
     }
 
-    // Get whether the Robot should drive with field relative orientation
+    // Check if the robot should drive with field relative orientation
     public Boolean driveIsFieldRelative() {
         if(stick.getThrottle() > 0) {
             return true;
