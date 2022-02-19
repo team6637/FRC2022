@@ -5,7 +5,6 @@
 package frc.robot.subsystems;
 
 import java.util.ArrayList;
-import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -14,8 +13,6 @@ import io.github.pseudoresonance.pixy2api.Pixy2;
 import io.github.pseudoresonance.pixy2api.Pixy2CCC;
 import io.github.pseudoresonance.pixy2api.Pixy2CCC.Block;
 import io.github.pseudoresonance.pixy2api.links.SPILink;
-
-import static frc.robot.Constants.*;
 
 public class PixySubsystem extends SubsystemBase {
 
@@ -34,6 +31,8 @@ public class PixySubsystem extends SubsystemBase {
 	public void activate() {
 		pixy.setLamp((byte) 1, (byte) 1);
     	pixy.setLED(255, 255, 255);
+
+        // TODO: get signature 1 when red and signature 2 when blue
 		pixy.getCCC().getBlocks(false, Pixy2CCC.CCC_SIG2, 25);
 	
 		ArrayList<Block> blocks = pixy.getCCC().getBlockCache();

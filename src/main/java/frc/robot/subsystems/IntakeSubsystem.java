@@ -11,10 +11,11 @@ import com.revrobotics.Rev2mDistanceSensor.Port;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import static frc.robot.Constants.*;
 
 public class IntakeSubsystem extends SubsystemBase {
 
-  CANSparkMax motor = new CANSparkMax(54, MotorType.kBrushless);
+  CANSparkMax motor = new CANSparkMax(INTAKE, MotorType.kBrushless);
   Rev2mDistanceSensor distanceOnBoard;
 
   public IntakeSubsystem() {

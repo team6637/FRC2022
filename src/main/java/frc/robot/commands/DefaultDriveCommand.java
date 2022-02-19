@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.DrivetrainSubsystem;
 
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 public class DefaultDriveCommand extends CommandBase {
@@ -14,28 +15,30 @@ public class DefaultDriveCommand extends CommandBase {
     private final DoubleSupplier m_translationYSupplier;
     private final DoubleSupplier m_rotationSupplier;
     DoubleSupplier x;
+    BooleanSupplier driveIsFieldRelative;
 
     public DefaultDriveCommand(DrivetrainSubsystem drivetrainSubsystem,
         DoubleSupplier translationXSupplier,
         DoubleSupplier translationYSupplier,
         DoubleSupplier rotationSupplier,
-        DoubleSupplier x) {
+        DoubleSupplier x,
+        BooleanSupplier driveIsFieldRelative) {
         this.m_drivetrainSubsystem = drivetrainSubsystem;
         this.m_translationXSupplier = translationXSupplier;
         this.m_translationYSupplier = translationYSupplier;
         this.m_rotationSupplier = rotationSupplier;
         this.x = x;
+        this.driveIsFieldRelative = driveIsFieldRelative;
 
         addRequirements(drivetrainSubsystem);
     }
 
     @Override
     public void execute() {
-        if(x.getAsDouble() > 0) {
-            drive_robot_relative();
+        if(driveIsFieldRelative.getAsBoolean()) {
+            drive_field_relative();
         } else {
             drive_robot_relative();
-            //drive_field_relative();
         }
     }
 
@@ -49,7 +52,7 @@ public class DefaultDriveCommand extends CommandBase {
             ChassisSpeeds.fromFieldRelativeSpeeds(
                 m_translationXSupplier.getAsDouble(),
                 m_translationYSupplier.getAsDouble(),
-                m_rotationSupplier.getAsDouble(),
+                m_rotationSupplier.getAsDouble() + x.getAsDouble(),
                 m_drivetrainSubsystem.getGyroscopeRotation()
             )
         );

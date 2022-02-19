@@ -63,8 +63,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
         m_frontLeftModule = Mk3SwerveModuleHelper.createFalcon500(
                 tab.getLayout("Front Left Module", BuiltInLayouts.kList)
-                        .withSize(4, 5)
-                        .withPosition(0, 0),
+                    .withSize(4, 5)
+                    .withPosition(0, 0),
                 Mk3SwerveModuleHelper.GearRatio.STANDARD,
                 FRONT_LEFT_MODULE_DRIVE_MOTOR,
                 FRONT_LEFT_MODULE_STEER_MOTOR,
@@ -74,8 +74,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
         m_frontRightModule = Mk3SwerveModuleHelper.createFalcon500(
                 tab.getLayout("Front Right Module", BuiltInLayouts.kList)
-                        .withSize(4, 5)
-                        .withPosition(4, 0),
+                    .withSize(4, 5)
+                    .withPosition(4, 0),
                 Mk3SwerveModuleHelper.GearRatio.STANDARD,
                 FRONT_RIGHT_MODULE_DRIVE_MOTOR,
                 FRONT_RIGHT_MODULE_STEER_MOTOR,
@@ -85,8 +85,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
         m_backLeftModule = Mk3SwerveModuleHelper.createFalcon500(
                 tab.getLayout("Back Left Module", BuiltInLayouts.kList)
-                        .withSize(4, 5)
-                        .withPosition(8, 0),
+                    .withSize(4, 5)
+                    .withPosition(8, 0),
                 Mk3SwerveModuleHelper.GearRatio.STANDARD,
                 BACK_LEFT_MODULE_DRIVE_MOTOR,
                 BACK_LEFT_MODULE_STEER_MOTOR,
@@ -96,8 +96,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
         m_backRightModule = Mk3SwerveModuleHelper.createFalcon500(
                 tab.getLayout("Back Right Module", BuiltInLayouts.kList)
-                        .withSize(4, 5)
-                        .withPosition(12, 0),
+                    .withSize(4, 5)
+                    .withPosition(12, 0),
                 Mk3SwerveModuleHelper.GearRatio.STANDARD,
                 BACK_RIGHT_MODULE_DRIVE_MOTOR,
                 BACK_RIGHT_MODULE_STEER_MOTOR,

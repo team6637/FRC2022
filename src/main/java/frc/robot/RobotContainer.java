@@ -30,17 +30,16 @@ public class RobotContainer {
 
     public RobotContainer() {
 
-
         m_drivetrainSubsystem.setDefaultCommand(new DefaultDriveCommand(
             m_drivetrainSubsystem,
             () -> modifyAxis(-stick.getY()) * DrivetrainSubsystem.MAX_VELOCITY_METERS_PER_SECOND,
             () -> modifyAxis(-stick.getX()) * DrivetrainSubsystem.MAX_VELOCITY_METERS_PER_SECOND,
             () -> modifyAxis(-stick.getTwist()) * DrivetrainSubsystem.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
-            () -> m_pixySubsystem.getX()
+            () -> m_pixySubsystem.getX(),
+            () -> driveIsFieldRelative()
         ));
 
         configureButtonBindings();
-
     }
 
     /**
@@ -86,8 +85,8 @@ public class RobotContainer {
             )
         );
 
-        // lift reset initial offsets
-        new JoystickButton(stick2, 5).whenPressed(new InstantCommand(m_liftSubsystem::reset, m_liftSubsystem));
+        // lift - reset lift encoders to position 0
+        //new JoystickButton(stick2, 5).whenPressed(new InstantCommand(m_liftSubsystem::resetLift, m_liftSubsystem));
 
         // lift up
         new JoystickButton(stick2, 9).whileHeld(new RunCommand(m_liftSubsystem::up, m_liftSubsystem));
@@ -96,25 +95,15 @@ public class RobotContainer {
         new JoystickButton(stick2, 11).whileHeld(new RunCommand(m_liftSubsystem::down, m_liftSubsystem));
 
         // winch in
-        new JoystickButton(stick2, 12).whileHeld(new RunCommand(m_liftSubsystem::in, m_liftSubsystem)).whenReleased(new InstantCommand(m_liftSubsystem::stopwinch, m_liftSubsystem));
+        new JoystickButton(stick2, 12).whileHeld(new RunCommand(m_liftSubsystem::in, m_liftSubsystem));
 
         // winch out
-        new JoystickButton(stick2, 10).whileHeld(new RunCommand(m_liftSubsystem::out, m_liftSubsystem)).whenReleased(new InstantCommand(m_liftSubsystem::stopwinch, m_liftSubsystem));
+        new JoystickButton(stick2, 10).whileHeld(new RunCommand(m_liftSubsystem::out, m_liftSubsystem));
 
         // hold pixy sensor
         new JoystickButton(stick, 11).whileHeld(new RunCommand(m_pixySubsystem::activate, m_pixySubsystem)).whenReleased(new InstantCommand(m_pixySubsystem::deactivate, m_pixySubsystem));
 
     }
-
-    public String getAllianceColor() {
-        if(stick2.getThrottle() > 0) {
-          return "blue";
-        } else {
-          return "red";
-        } 
-      }
-
-
 
     public Command getAutonomousCommand() {
         return new InstantCommand();
@@ -140,5 +129,23 @@ public class RobotContainer {
         value = Math.copySign(value * value, value);
 
         return value;
+    }
+
+    // Get Alliance Color from throttle position of Jostick 2
+    public String getAllianceColor() {
+        if(stick2.getThrottle() > 0) {
+            return "blue";
+        } else {
+            return "red";
+        } 
+    }
+
+    // Get whether the Robot should drive with field relative orientation
+    public Boolean driveIsFieldRelative() {
+        if(stick.getThrottle() > 0) {
+            return true;
+        } else {
+            return false;
+        } 
     }
 }
