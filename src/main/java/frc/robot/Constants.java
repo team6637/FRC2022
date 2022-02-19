@@ -28,6 +28,8 @@ public final class Constants {
      */
     public static final double DRIVETRAIN_WHEELBASE_METERS = Units.inchesToMeters(23.5);
     public static final int DRIVETRAIN_PIGEON_ID = 0;
+
+    public static final double DRIVETRAIN_KS = 0.2;
     
     public static final int FRONT_LEFT_MODULE_DRIVE_MOTOR = 1; 
     public static final int FRONT_LEFT_MODULE_STEER_MOTOR = 2; 
@@ -60,7 +62,8 @@ public final class Constants {
     // DIO
     public static final int SHOOTER_ENCODER_1 = 0;
     public static final int SHOOTER_ENCODER_2 = 1;
-    public static final int LEFT_LIFT_ENCODER = 3;
-    public static final int RIGHT_LIFT_ENCODER = 4;
+    public static final int LIFT_LEFT_ENCODER = 2;
+    public static final int LIFT_RIGHT_ENCODER = 4;
+    public static final int LIFT_WINCH_ENCODER = 3;
 
 }

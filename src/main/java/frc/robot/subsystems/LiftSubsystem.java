@@ -7,6 +7,7 @@ package frc.robot.subsystems;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -16,53 +17,80 @@ public class LiftSubsystem extends SubsystemBase {
 
   CANSparkMax motor1 = new CANSparkMax(LIFT_LEFT, MotorType.kBrushless);
   CANSparkMax motor2 = new CANSparkMax(LIFT_RIGHT, MotorType.kBrushless);
-  //CANSparkMax winch = new CANSparkMax(WINCH, MotorType.kBrushless);
+  CANSparkMax winch = new CANSparkMax(WINCH, MotorType.kBrushless);
 
-  DutyCycleEncoder leftEncoder = new DutyCycleEncoder(LEFT_LIFT_ENCODER);
-  DutyCycleEncoder rightEncoder = new DutyCycleEncoder(RIGHT_LIFT_ENCODER);
-  ///DutyCycleEncoder winchEncoder = new DutyCycleEncoder(3);
+  DutyCycleEncoder leftEncoder = new DutyCycleEncoder(LIFT_LEFT_ENCODER);
+  DutyCycleEncoder rightEncoder = new DutyCycleEncoder(LIFT_RIGHT_ENCODER);
+  // DutyCycleEncoder winchEncoder = new DutyCycleEncoder(3);
+
+  double liftTarget = 0;
+  double liftTargetMin = 0.0;
+  double liftTargetMax = 6.0;
+
+  double liftLeftOffset;
+  double liftRightOffset;
+
+  PIDController liftPID;
+  double kP = 0.8;
 
   public LiftSubsystem() {
     leftEncoder.setConnectedFrequencyThreshold(900);
     rightEncoder.setConnectedFrequencyThreshold(900);
-    //winchEncoder.setConnectedFrequencyThreshold(900);
+
+    // winchEncoder.setConnectedFrequencyThreshold(900);
+
+    liftPID = new PIDController(kP, 0, 0);
+    reset();
   }
 
-  double power = 0.4;
+  public void reset() {
+    leftEncoder.reset();
+    rightEncoder.reset();
+    liftTarget = 0;
+  }
+
   double winchPower = 0.4;
 
   public void up() {
-    motor1.set(power);
-    motor2.set(power);
+    liftTarget += 0.1;
   }
 
   public void down() {
-    motor1.set(-power);
-    motor2.set(-power);
-  }
-
-  public void stop() {
-    motor1.set(0.0);
-    motor2.set(0.0);
+    liftTarget -= 0.1;
   }
 
   public void in() {
-    //winch.set(winchPower);
+    winch.set(winchPower);
   }
 
   public void out() {
-    //winch.set(-winchPower);
+    winch.set(-winchPower);
   }
 
   public void stopwinch() {
-    //winch.set(0.0);
+    winch.set(0.0);
   }
 
   @Override
   public void periodic() {
+    if(liftTarget > liftTargetMax) liftTarget = liftTargetMax;
+    if(liftTarget < liftTargetMin) liftTarget = liftTargetMin;
+
     SmartDashboard.putNumber("lift left encoder position", leftEncoder.get());
+    
     SmartDashboard.putNumber("lift right encoder position", rightEncoder.get());
-    //SmartDashboard.putNumber("winch encoder position", winchEncoder.get());
+
+    
+    SmartDashboard.putNumber("lift target", liftTarget);
+
+    double leftPower = liftPID.calculate(leftEncoder.get(), liftTarget);
+    double rightPower = liftPID.calculate(rightEncoder.get(), liftTarget);
+
+    SmartDashboard.putNumber("lift left power", leftPower);
+    SmartDashboard.putNumber("lift right power", rightPower);
+
+    motor1.set(leftPower);
+    motor2.set(rightPower);
   }
 
 }

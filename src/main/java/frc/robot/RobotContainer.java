@@ -35,7 +35,8 @@ public class RobotContainer {
             m_drivetrainSubsystem,
             () -> modifyAxis(-stick.getY()) * DrivetrainSubsystem.MAX_VELOCITY_METERS_PER_SECOND,
             () -> modifyAxis(-stick.getX()) * DrivetrainSubsystem.MAX_VELOCITY_METERS_PER_SECOND,
-            () -> modifyAxis(-stick.getTwist()) * DrivetrainSubsystem.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND
+            () -> modifyAxis(-stick.getTwist()) * DrivetrainSubsystem.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
+            () -> m_pixySubsystem.getX()
         ));
 
         configureButtonBindings();
@@ -51,7 +52,7 @@ public class RobotContainer {
     private void configureButtonBindings() {
 
         // reset gyro
-        new JoystickButton(stick, 11).whenPressed(m_drivetrainSubsystem::zeroGyroscope);
+        new JoystickButton(stick, 7).whenPressed(m_drivetrainSubsystem::zeroGyroscope);
 
         // shoot
         new JoystickButton(stick, 1).whileHeld(new RunCommand(m_shooterSubsystem::shoot, m_shooterSubsystem)).whenReleased(new InstantCommand(m_shooterSubsystem::stop, m_shooterSubsystem));
@@ -85,17 +86,23 @@ public class RobotContainer {
             )
         );
 
+        // lift reset initial offsets
+        new JoystickButton(stick2, 5).whenPressed(new InstantCommand(m_liftSubsystem::reset, m_liftSubsystem));
+
         // lift up
-        new JoystickButton(stick2, 9).whileHeld(new RunCommand(m_liftSubsystem::up, m_liftSubsystem)).whenReleased(new InstantCommand(m_liftSubsystem::stop, m_liftSubsystem));
+        new JoystickButton(stick2, 9).whileHeld(new RunCommand(m_liftSubsystem::up, m_liftSubsystem));
 
         // lift down
-        new JoystickButton(stick2, 11).whileHeld(new RunCommand(m_liftSubsystem::down, m_liftSubsystem)).whenReleased(new InstantCommand(m_liftSubsystem::stop, m_liftSubsystem));
+        new JoystickButton(stick2, 11).whileHeld(new RunCommand(m_liftSubsystem::down, m_liftSubsystem));
 
         // winch in
         new JoystickButton(stick2, 12).whileHeld(new RunCommand(m_liftSubsystem::in, m_liftSubsystem)).whenReleased(new InstantCommand(m_liftSubsystem::stopwinch, m_liftSubsystem));
 
         // winch out
         new JoystickButton(stick2, 10).whileHeld(new RunCommand(m_liftSubsystem::out, m_liftSubsystem)).whenReleased(new InstantCommand(m_liftSubsystem::stopwinch, m_liftSubsystem));
+
+        // hold pixy sensor
+        new JoystickButton(stick, 11).whileHeld(new RunCommand(m_pixySubsystem::activate, m_pixySubsystem)).whenReleased(new InstantCommand(m_pixySubsystem::deactivate, m_pixySubsystem));
 
     }
 
