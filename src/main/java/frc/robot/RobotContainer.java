@@ -51,7 +51,7 @@ public class RobotContainer {
     private void configureButtonBindings() {
 
         // reset gyro
-        new JoystickButton(stick, 7).whenPressed(m_drivetrainSubsystem::zeroGyroscope);
+        new JoystickButton(stick, 6).whenPressed(new InstantCommand(m_drivetrainSubsystem::zeroGyroscope, m_drivetrainSubsystem));
 
         // shoot
         new JoystickButton(stick, 1).whileHeld(new RunCommand(m_shooterSubsystem::shoot, m_shooterSubsystem)).whenReleased(new InstantCommand(m_shooterSubsystem::stop, m_shooterSubsystem));
@@ -86,7 +86,7 @@ public class RobotContainer {
         );
 
         // lift - reset lift encoders to position 0
-        //new JoystickButton(stick2, 5).whenPressed(new InstantCommand(m_liftSubsystem::resetLift, m_liftSubsystem));
+        new JoystickButton(stick2, 2).whenPressed(new InstantCommand(m_liftSubsystem::resetLift, m_liftSubsystem));
 
         // lift up
         new JoystickButton(stick2, 9).whileHeld(new RunCommand(m_liftSubsystem::up, m_liftSubsystem));
@@ -102,6 +102,35 @@ public class RobotContainer {
 
         // hold pixy sensor
         new JoystickButton(stick, 11).whileHeld(new RunCommand(m_pixySubsystem::activate, m_pixySubsystem)).whenReleased(new InstantCommand(m_pixySubsystem::deactivate, m_pixySubsystem));
+
+
+        // set shooter pos low far
+        new JoystickButton(stick, 7).whenPressed(new InstantCommand(m_shooterSubsystem::setLowFar, m_shooterSubsystem));
+
+        // set shooter pos low close
+        new JoystickButton(stick, 9).whenPressed(new InstantCommand(m_shooterSubsystem::setLowClose, m_shooterSubsystem));
+
+        // set shooter pos high far
+        new JoystickButton(stick, 8).whenPressed(new InstantCommand(m_shooterSubsystem::setHighFar, m_shooterSubsystem));
+
+        // set shooter pos high close
+        new JoystickButton(stick, 10).whenPressed(new InstantCommand(m_shooterSubsystem::setHighClose, m_shooterSubsystem));
+
+        // set shooter pos high auto
+        new JoystickButton(stick, 12).whenPressed(new InstantCommand(m_shooterSubsystem::setHighAuto, m_shooterSubsystem));
+
+        // initial acquire
+        new JoystickButton(stick2, 3).whileHeld(new InstantCommand());
+
+        // detach
+        new JoystickButton(stick2, 5).whileHeld(new InstantCommand());
+
+        // extendo
+        new JoystickButton(stick2, 6).whileHeld(new InstantCommand());
+
+        // acquire
+        new JoystickButton(stick2, 4).whileHeld(new InstantCommand());
+
 
     }
 
@@ -147,5 +176,8 @@ public class RobotContainer {
         } else {
             return false;
         } 
+    }
+    public void resetLift() {
+        m_liftSubsystem.resetLift();
     }
 }

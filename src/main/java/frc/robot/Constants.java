@@ -52,6 +52,7 @@ public final class Constants {
     public static final int LIFT_LEFT = 55;
     public static final int LIFT_RIGHT = 56;
     public static final int WINCH = 57;
+    public static final int HOOD = 58;
 
     // DIO Ports
     public static final int SHOOTER_ENCODER_1 = 0;

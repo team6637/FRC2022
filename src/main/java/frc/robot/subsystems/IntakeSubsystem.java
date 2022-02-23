@@ -6,9 +6,8 @@ package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import com.revrobotics.Rev2mDistanceSensor;
-import com.revrobotics.Rev2mDistanceSensor.Port;
 
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import static frc.robot.Constants.*;
@@ -16,11 +15,12 @@ import static frc.robot.Constants.*;
 public class IntakeSubsystem extends SubsystemBase {
 
   CANSparkMax motor = new CANSparkMax(INTAKE, MotorType.kBrushless);
-  Rev2mDistanceSensor distanceOnBoard;
+  DigitalInput ball1IsSeen;
+  DigitalInput ball2IsSeen;
 
   public IntakeSubsystem() {
-    distanceOnBoard = new Rev2mDistanceSensor(Port.kOnboard);
-    distanceOnBoard.setAutomaticMode(true);  
+    ball1IsSeen = new DigitalInput(6);
+    ball2IsSeen = new DigitalInput(7);
   }
 
   public void in() {
@@ -35,16 +35,18 @@ public class IntakeSubsystem extends SubsystemBase {
     motor.set(0.0);
   }
 
-  public boolean ballIsSeen() {
-    if(distanceOnBoard.getRange() < 6) {
-      return true;
-    } else {
-      return false;
-    }
+  public boolean getBall1IsSeen() {
+    return ball1IsSeen.get();
   }
+
+  public boolean getBall2IsSeen() {
+    return ball2IsSeen.get();
+  }
+  
   
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("intake distance sensor", distanceOnBoard.getRange());
+    SmartDashboard.putBoolean("intake distance sensor 1", getBall1IsSeen());
+    SmartDashboard.putBoolean("intake distance sensor 2", getBall2IsSeen());
   }
 }
