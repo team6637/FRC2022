@@ -26,6 +26,9 @@ import static frc.robot.Constants.*;
 
 public class DrivetrainSubsystem extends SubsystemBase {
 
+    // limelight turn
+    private double limelightTurn = 0;
+
     // reduce to slow robot
     public static final double MAX_VOLTAGE = 10.0;
 
@@ -45,7 +48,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
         new Translation2d(-DRIVETRAIN_TRACKWIDTH_METERS / 2.0, -DRIVETRAIN_WHEELBASE_METERS / 2.0)
     );
 
-    private final PigeonIMU m_pigeon = new PigeonIMU(DRIVETRAIN_PIGEON_ID);
+    //private final PigeonIMU m_pigeon = new PigeonIMU(DRIVETRAIN_PIGEON_ID);
+    private final Pigeon2 m_pigeon = new Pigeon2(30);
 
     SwerveModuleState[] currentStates = m_kinematics.toSwerveModuleStates(new ChassisSpeeds());
 
@@ -107,11 +111,12 @@ public class DrivetrainSubsystem extends SubsystemBase {
     }
 
     public void zeroGyroscope() {
-        m_pigeon.setFusedHeading(0.0);
+        //m_pigeon.setFusedHeading(0.0);
+        m_pigeon.setYaw(0.0);
     }
 
     public Rotation2d getGyroscopeRotation() {
-        return Rotation2d.fromDegrees(m_pigeon.getFusedHeading());
+        return Rotation2d.fromDegrees(m_pigeon.getYaw());
     }
 
     public void drive(ChassisSpeeds chassisSpeeds) {
@@ -156,12 +161,21 @@ public class DrivetrainSubsystem extends SubsystemBase {
         m_odometry.resetPosition(pose, this.getGyroscopeRotation());
     }
 
+    public double getLimelightTurn() {
+        return limelightTurn;
+    }
+
+    public void setLimelightTurn(double v) {
+        limelightTurn = v;
+    }
+
     @Override
     public void periodic() {
         // put pose info in SmartDashboard
         SmartDashboard.putNumber("pose x", getPose().getX());
         SmartDashboard.putNumber("pose y", getPose().getY());
         SmartDashboard.putNumber("pose rotation", getPose().getRotation().getDegrees());
+        SmartDashboard.putNumber("drive gyro rotation", getGyroscopeRotation().getDegrees());
         
         m_odometry.update(
             this.getGyroscopeRotation(),

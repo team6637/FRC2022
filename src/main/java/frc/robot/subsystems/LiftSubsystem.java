@@ -17,10 +17,10 @@ import static frc.robot.Constants.*;
 
 public class LiftSubsystem extends SubsystemBase {
 
-    CANSparkMax motor1 = new CANSparkMax(LIFT_LEFT, MotorType.kBrushless);
-    CANSparkMax motor2 = new CANSparkMax(LIFT_RIGHT, MotorType.kBrushless);
-    DutyCycleEncoder leftEncoder = new DutyCycleEncoder(LIFT_LEFT_ENCODER);
-    DutyCycleEncoder rightEncoder = new DutyCycleEncoder(LIFT_RIGHT_ENCODER);
+    CANSparkMax motor1;
+    CANSparkMax motor2;
+    DutyCycleEncoder leftEncoder;
+    DutyCycleEncoder rightEncoder;
 
     double liftTarget = 0.0;
     double liftTargetMin = 0.0;
@@ -28,9 +28,10 @@ public class LiftSubsystem extends SubsystemBase {
     boolean liftLeftWasReset = false;
     boolean liftRightWasReset = false;
     PIDController liftPID;
+
     double liftKp = 0.8;
 
-    CANSparkMax winch = new CANSparkMax(WINCH, MotorType.kBrushless);
+    CANSparkMax winch;
 
     double winchSetpoint = 0.0;
     double winchSetpointMin = 0.0;
@@ -42,13 +43,25 @@ public class LiftSubsystem extends SubsystemBase {
     double winchKp = 0.2;
 
     public LiftSubsystem() {
+        motor1 = new CANSparkMax(LIFT_LEFT, MotorType.kBrushless);
+        motor2 = new CANSparkMax(LIFT_RIGHT, MotorType.kBrushless);
+        motor1.restoreFactoryDefaults();
+        motor2.restoreFactoryDefaults();
 
-      leftEncoder.setConnectedFrequencyThreshold(900);
-      rightEncoder.setConnectedFrequencyThreshold(900);
-      liftPID = new PIDController(liftKp, 0.0, 0.0);
+        winch = new CANSparkMax(WINCH, MotorType.kBrushless);
+        winch.restoreFactoryDefaults();
 
-      winchPID = new PIDController(winchKp, 0.0, 0.0);
-      winchEncoder = winch.getEncoder(SparkMaxRelativeEncoder.Type.kHallSensor, 42);
+        leftEncoder = new DutyCycleEncoder(LIFT_LEFT_ENCODER);
+        rightEncoder = new DutyCycleEncoder(LIFT_RIGHT_ENCODER);
+        leftEncoder.setConnectedFrequencyThreshold(900);
+        rightEncoder.setConnectedFrequencyThreshold(900);
+
+        liftPID = new PIDController(liftKp, 0.0, 0.0);
+        liftPID.setTolerance(.2);
+
+        winchPID = new PIDController(winchKp, 0.0, 0.0);
+        winchPID.setTolerance(.2);
+        winchEncoder = winch.getEncoder(SparkMaxRelativeEncoder.Type.kHallSensor, 42);
     }
 
     public void resetLift() {
@@ -66,11 +79,11 @@ public class LiftSubsystem extends SubsystemBase {
     }
 
     public void in() {
-        winchSetpoint -= 1.0;
+        winchSetpoint -= 1.5;
     }
 
     public void out() {
-        winchSetpoint += 1.0;
+        winchSetpoint += 1.5;
     }
 
     public double getWinchPosition() {
@@ -85,6 +98,18 @@ public class LiftSubsystem extends SubsystemBase {
         return winchPID.atSetpoint();
     }
 
+    public void setLiftArmsSetpoint(double s) {
+        liftTarget = s;
+    }
+
+    public boolean isLiftAtSetpoint() {
+        return liftPID.atSetpoint();
+    }
+
+    public void stopLiftAndWinch() {
+        liftTarget = leftEncoder.get();
+        winchSetpoint = getWinchPosition();
+    }
 
     @Override
     public void periodic() {
@@ -99,7 +124,6 @@ public class LiftSubsystem extends SubsystemBase {
             liftRightWasReset = true;
         }
 
-
         if(liftTarget > liftTargetMax) liftTarget = liftTargetMax;
         if(liftTarget < liftTargetMin) liftTarget = liftTargetMin;
 
@@ -110,11 +134,8 @@ public class LiftSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("lift right encoder position", rightEncoder.get());
         SmartDashboard.putNumber("lift target", liftTarget);
 
-        SmartDashboard.putNumber("lift winch position", getWinchPosition());
-        SmartDashboard.putNumber("lift winch setpoint", winchSetpoint);
-
-        double leftPower = liftPID.calculate(leftEncoder.get(), liftTarget);
-        double rightPower = liftPID.calculate(rightEncoder.get(), liftTarget);
+        double leftPower = liftPID.calculate(leftEncoder.get(),  liftTarget);
+        double rightPower = liftPID.calculate(rightEncoder.get(),  liftTarget);
         double winchPower = winchPID.calculate(getWinchPosition(), winchSetpoint);
 
         motor1.set(leftPower);
@@ -123,9 +144,17 @@ public class LiftSubsystem extends SubsystemBase {
 
         SmartDashboard.putNumber("lift left power", leftPower);
         SmartDashboard.putNumber("lift right power", rightPower);
-        SmartDashboard.putNumber("winch power", winchPower);
-        SmartDashboard.putNumber("winch encoder", winchEncoder.getPosition());
-        
-        SmartDashboard.putBoolean("winch at setpoint", isWinchAtSetpoint());
+
+        SmartDashboard.putNumber("lift left temperature", motor1.getMotorTemperature());
+        SmartDashboard.putNumber("lift right temperature", motor2.getMotorTemperature());
+        SmartDashboard.putNumber("lift left output", motor1.getAppliedOutput());
+        SmartDashboard.putNumber("lift right output", motor2.getAppliedOutput());
+
+
+        //SmartDashboard.putNumber("lift winch position", getWinchPosition());
+        //SmartDashboard.putNumber("lift winch setpoint", winchSetpoint);
+        //SmartDashboard.putNumber("winch power", winchPower);
+        //SmartDashboard.putBoolean("winch at setpoint", isWinchAtSetpoint());
+        //SmartDashboard.putBoolean("lift at setpoint", isLiftAtSetpoint());
     }
 }

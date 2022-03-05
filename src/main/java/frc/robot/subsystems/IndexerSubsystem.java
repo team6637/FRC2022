@@ -12,14 +12,20 @@ import static frc.robot.Constants.*;
 
 public class IndexerSubsystem extends SubsystemBase {
 
-  CANSparkMax motor = new CANSparkMax(INDEXER, MotorType.kBrushless);
+  CANSparkMax motor;
+  private final double power = 0.7;
+
+  public IndexerSubsystem() {
+    motor = new CANSparkMax(INDEXER, MotorType.kBrushless);
+    motor.restoreFactoryDefaults();
+  }
 
   public void in() {
-    motor.set(-0.7);
+    motor.set(power);
   }
 
   public void out() {
-    motor.set(0.7);
+    motor.set(-power);
   }
 
   public void stop() {

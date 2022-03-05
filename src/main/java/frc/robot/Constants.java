@@ -19,7 +19,7 @@ public final class Constants {
      * Should be measured from center to center.
      */
     public static final double DRIVETRAIN_WHEELBASE_METERS = Units.inchesToMeters(23.5);
-    public static final int DRIVETRAIN_PIGEON_ID = 0;
+    public static final int DRIVETRAIN_PIGEON_ID = 30;
 
     // least amount of power required to overcome the drivetrain's static friction
     public static final double DRIVETRAIN_KS = 0.2;
@@ -27,22 +27,22 @@ public final class Constants {
     public static final int FRONT_LEFT_MODULE_DRIVE_MOTOR = 1; 
     public static final int FRONT_LEFT_MODULE_STEER_MOTOR = 2; 
     public static final int FRONT_LEFT_MODULE_STEER_ENCODER = 21; 
-    public static final double FRONT_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(9.4); 
+    public static final double FRONT_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(346.46); 
 
     public static final int FRONT_RIGHT_MODULE_DRIVE_MOTOR = 3; 
     public static final int FRONT_RIGHT_MODULE_STEER_MOTOR = 4; 
     public static final int FRONT_RIGHT_MODULE_STEER_ENCODER = 22; 
-    public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(245.0);
+    public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(221.84);
 
     public static final int BACK_LEFT_MODULE_DRIVE_MOTOR = 5; 
     public static final int BACK_LEFT_MODULE_STEER_MOTOR = 6; 
     public static final int BACK_LEFT_MODULE_STEER_ENCODER = 23; 
-    public static final double BACK_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(337.22);
+    public static final double BACK_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(347.69);
 
     public static final int BACK_RIGHT_MODULE_DRIVE_MOTOR = 7; 
     public static final int BACK_RIGHT_MODULE_STEER_MOTOR = 8; 
     public static final int BACK_RIGHT_MODULE_STEER_ENCODER = 24; 
-    public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(183.15); 
+    public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(144.58); 
 
     // CAN IDs
     public static final int SHOOTER_LEFT = 52;
@@ -60,5 +60,8 @@ public final class Constants {
     public static final int LIFT_LEFT_ENCODER = 2;
     public static final int LIFT_RIGHT_ENCODER = 4;
     public static final int LIFT_WINCH_ENCODER = 3;
+    public static final int INTAKE_BALL_SENSOR_1 = 6;
+    public static final int INTAKE_BALL_SENSOR_2 = 7;
+
 
 }

@@ -18,48 +18,52 @@ import static frc.robot.Constants.*;
 
 public class ShooterSubsystem extends SubsystemBase {
 
-  CANSparkMax motor1 = new CANSparkMax(SHOOTER_LEFT, MotorType.kBrushless);
-  CANSparkMax motor2 = new CANSparkMax(SHOOTER_RIGHT, MotorType.kBrushless);
-  CANSparkMax hoodmotor = new CANSparkMax(HOOD, MotorType.kBrushless);
-
-  double hoodMin = 2.0;
-  double hoodMax = 8.0;
+  CANSparkMax motor1;
+  CANSparkMax motor2;
+  CANSparkMax hoodmotor;
 
   Encoder velocityEncoder = new Encoder(SHOOTER_ENCODER_1, SHOOTER_ENCODER_2);
-  BangBangController controller = new BangBangController();
-  double shooterKp = 0.0;
-  PIDController shooterController;
-  double setpoint = 2000.0;
+  BangBangController shooterController = new BangBangController();
+  double shooterSetpoint = 2000.0;
 
-  double kp = 0.4;
+  double hoodKp = 0.4;
   PIDController hoodController;
-  double hoodTarget = 2.2;
+  double hoodSetpoint = 2.2;
+  double hoodMin = 2.0;
+  double hoodMax = 8.0;
 
   Rev2mDistanceSensor hoodDistanceSensor;
 
   public ShooterSubsystem() {
+    motor1 = new CANSparkMax(SHOOTER_LEFT, MotorType.kBrushless);
+    motor1.restoreFactoryDefaults();
+
+    motor2 = new CANSparkMax(SHOOTER_RIGHT, MotorType.kBrushless);
+    motor2.restoreFactoryDefaults();
+
+    hoodmotor = new CANSparkMax(HOOD, MotorType.kBrushless);
+    hoodmotor.restoreFactoryDefaults();
+
     motor1.setInverted(false);
     motor2.setInverted(true);
 
-    hoodController = new PIDController(kp, 0.0, 0.0);
+    hoodmotor.restoreFactoryDefaults();
+    hoodController = new PIDController(hoodKp, 0.0, 0.0);
     hoodDistanceSensor = new Rev2mDistanceSensor(Port.kOnboard);
     hoodDistanceSensor.setAutomaticMode(true);  
 
-    SmartDashboard.putNumber("shooter target speed", setpoint);
-    SmartDashboard.putNumber("hood kp", kp);
-    
-    SmartDashboard.putNumber("hood target", hoodTarget);
+    SmartDashboard.putNumber("shooter target speed", shooterSetpoint);    
+    SmartDashboard.putNumber("hood target", hoodSetpoint);
 
-    shooterController = new PIDController(shooterKp, 0.0, 0.0);
+    shooterController = new BangBangController();
+    //shooterController.setTolerance(40);
 
-    SmartDashboard.putNumber("shooter kp", shooterKp);
   }
 
   public void shoot() {
-    setpoint = SmartDashboard.getNumber("shooter target speed", setpoint);
+    shooterSetpoint = SmartDashboard.getNumber("shooter target speed", shooterSetpoint);
 
-    double power = controller.calculate(getSpeed(), setpoint);
-    // double power = shooterController.calculate(getSpeed(), setpoint);
+    double power = shooterController.calculate(getSpeed(), shooterSetpoint);
     motor1.set(power);
     motor2.set(power);
   }
@@ -73,66 +77,60 @@ public class ShooterSubsystem extends SubsystemBase {
     return velocityEncoder.getRate() / 2048.0 * 60.0;
   }
 
-  public void setSetpoint(double s) {
+  public void setSetpoints(double s, double h) {
     SmartDashboard.putNumber("shooter target speed", s);
-    setpoint = s;
+    SmartDashboard.putNumber("hood target", h);
+    shooterSetpoint = s;
+    hoodSetpoint = h;
+  }
+
+
+  public void setLowClose() {
+    setSetpoints(700.0, 4.0);
   }
 
   public void setLowFar() {
-    setSetpoint(1800.0);
+    setSetpoints(1200.0, 5.0);
   }
 
-  public void setLowClose() {
-    setSetpoint(1800.0);
+
+  public void setHighClose() {
+    setSetpoints(2200.0, 2.0);
   }
 
   public void setHighFar() {
-    setSetpoint(2500.0);
-  }
-
-  public void setHighClose() {
-    setSetpoint(2000.0);
+    setSetpoints(5100.0, 3.0);
   }
 
   public void setHighAuto() {
-    setSetpoint(2300.0);
+    
+    setSetpoints(2300.0, 2.0);
+
   }
 
   public double getHoodSensorValue() {
-    return hoodDistanceSensor.getRange();
+    double v = hoodDistanceSensor.getRange();
+    if(v < hoodMin) v = hoodMin;
+    return v;
   }
 
-  public void hoodOut() {
-    hoodmotor.set(0.5);
-  }
-
-  public void hoodIn() {
-    hoodmotor.set(-0.5);
-  }
-
-  public void hoodStop() {
-    hoodmotor.set(0.0);
+  public boolean atTargetVelocity() {
+    return getSpeed() > shooterSetpoint;
   }
 
   @Override
   public void periodic() {
     SmartDashboard.putNumber("shooter speed", getSpeed());
-    SmartDashboard.putNumber("hood distance sensor", getHoodSensorValue());
+    //SmartDashboard.putNumber("hood distance sensor", getHoodSensorValue());
 
-    kp = SmartDashboard.getNumber("hood kp", kp);
-    hoodController.setP(kp);
+    hoodSetpoint = SmartDashboard.getNumber("hood target", hoodSetpoint);
 
-    hoodTarget = SmartDashboard.getNumber("hood target", hoodTarget);
+    if(hoodSetpoint < hoodMin) hoodSetpoint = hoodMin;
+    if(hoodSetpoint > hoodMax) hoodSetpoint = hoodMax;
+    hoodmotor.set(hoodController.calculate(getHoodSensorValue(), hoodSetpoint));
 
-    if(hoodTarget < hoodMin) hoodTarget = hoodMin;
-    if(hoodTarget > hoodMax) hoodTarget = hoodMax;
-    hoodmotor.set(hoodController.calculate(getHoodSensorValue(), hoodTarget));
 
-    shooterKp = SmartDashboard.getNumber("shooter kp", shooterKp);
-    shooterController.setP(shooterKp);
-
-    
-
+    SmartDashboard.putBoolean("shooter is at target", atTargetVelocity());
 
   }
 }

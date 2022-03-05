@@ -28,12 +28,15 @@ public class PixySubsystem extends SubsystemBase {
 		this.w = pixy.getFrameWidth();
 	}
 
-	public void activate() {
+	public void activate(String color) {
 		pixy.setLamp((byte) 1, (byte) 1);
     	pixy.setLED(255, 255, 255);
 
-        // TODO: get signature 1 when red and signature 2 when blue
-		pixy.getCCC().getBlocks(false, Pixy2CCC.CCC_SIG2, 25);
+		if(color == "red") {
+			pixy.getCCC().getBlocks(false, Pixy2CCC.CCC_SIG1, 25);
+		} else {
+			pixy.getCCC().getBlocks(false, Pixy2CCC.CCC_SIG2, 25);
+		}
 	
 		ArrayList<Block> blocks = pixy.getCCC().getBlockCache();
 	

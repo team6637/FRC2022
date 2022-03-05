@@ -14,8 +14,9 @@ public class DefaultDriveCommand extends CommandBase {
     private final DoubleSupplier m_translationXSupplier;
     private final DoubleSupplier m_translationYSupplier;
     private final DoubleSupplier m_rotationSupplier;
-    DoubleSupplier x;
+    DoubleSupplier pixyX;
     BooleanSupplier driveIsFieldRelative;
+    private double turnMultiplier = 0.6;
 
     public DefaultDriveCommand(DrivetrainSubsystem drivetrainSubsystem,
         DoubleSupplier translationXSupplier,
@@ -27,7 +28,7 @@ public class DefaultDriveCommand extends CommandBase {
         this.m_translationXSupplier = translationXSupplier;
         this.m_translationYSupplier = translationYSupplier;
         this.m_rotationSupplier = rotationSupplier;
-        this.x = x;
+        this.pixyX = x;
         this.driveIsFieldRelative = driveIsFieldRelative;
 
         addRequirements(drivetrainSubsystem);
@@ -52,7 +53,7 @@ public class DefaultDriveCommand extends CommandBase {
             ChassisSpeeds.fromFieldRelativeSpeeds(
                 m_translationXSupplier.getAsDouble(),
                 m_translationYSupplier.getAsDouble(),
-                m_rotationSupplier.getAsDouble() + x.getAsDouble(),
+                m_rotationSupplier.getAsDouble() * turnMultiplier + pixyX.getAsDouble() + m_drivetrainSubsystem.getLimelightTurn(),
                 m_drivetrainSubsystem.getGyroscopeRotation()
             )
         );
@@ -61,8 +62,8 @@ public class DefaultDriveCommand extends CommandBase {
     public void drive_robot_relative() {
         m_drivetrainSubsystem.drive(new ChassisSpeeds(
             m_translationXSupplier.getAsDouble(),
-            m_translationYSupplier.getAsDouble() + x.getAsDouble(),
-            m_rotationSupplier.getAsDouble()
+            m_translationYSupplier.getAsDouble() + pixyX.getAsDouble(),
+            m_rotationSupplier.getAsDouble() * turnMultiplier + m_drivetrainSubsystem.getLimelightTurn()
         ));
     }
 }
