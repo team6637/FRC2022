@@ -4,12 +4,24 @@
 
 package frc.robot;
 
+import java.util.Arrays;
+
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.TrajectoryConfig;
+import edu.wpi.first.math.trajectory.TrajectoryGenerator;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.AutoAim;
@@ -228,7 +240,44 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        return new InstantCommand();
+        // ej added just to be safe
+        m_drivetrainSubsystem.resetOdometry(new Pose2d());
+
+        TrajectoryConfig config = new TrajectoryConfig(2.4, 2.0);
+        config.setKinematics(m_drivetrainSubsystem.getKinematics());
+
+        Trajectory trajectory = TrajectoryGenerator.generateTrajectory(
+            Arrays.asList(
+                new Pose2d(), 
+                new Pose2d(2.0, -2.0, new Rotation2d(0))
+            ), 
+            config
+        );
+
+        ProfiledPIDController thetaController = new ProfiledPIDController(
+            4.0, 0.0, 0.0, new TrapezoidProfile.Constraints(Math.PI, Math.PI));
+            thetaController.enableContinuousInput(-Math.PI, Math.PI);
+
+        SwerveControllerCommand swerveControllerCommand = new SwerveControllerCommand(
+            trajectory,
+            m_drivetrainSubsystem::getPose, // Functional interface to feed supplier
+            m_drivetrainSubsystem.getKinematics(),
+            new PIDController(1.0, 0, 0),
+            new PIDController(1.0, 0, 0),
+            thetaController,
+            m_drivetrainSubsystem::setModuleStates,
+            m_drivetrainSubsystem
+        );
+
+        // Reset odometry to the starting pose of the trajectory.
+        m_drivetrainSubsystem.resetOdometry(trajectory.getInitialPose());
+
+        // Run path following command, then stop at the end.
+        return swerveControllerCommand.andThen(() -> m_drivetrainSubsystem.drive( 
+            new ChassisSpeeds())
+        ); 
+
+        //return new InstantCommand();
     }
 
     private static double deadband(double value, double deadband) {
