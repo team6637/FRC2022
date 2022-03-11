@@ -4,6 +4,7 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.IndexerSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -13,6 +14,9 @@ public class ShootCommand extends CommandBase {
   ShooterSubsystem m_shooterSubsystem;
   IndexerSubsystem m_indexerSubsystem;
   IntakeSubsystem m_intakeSubsystem;
+
+  private int timer;
+
 
   public ShootCommand(ShooterSubsystem s, IndexerSubsystem index, IntakeSubsystem intake) {
     m_shooterSubsystem = s;
@@ -24,6 +28,7 @@ public class ShootCommand extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    timer = 0;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -33,7 +38,11 @@ public class ShootCommand extends CommandBase {
 
     if(m_shooterSubsystem.atTargetVelocity()) {
         m_indexerSubsystem.in();
-        m_intakeSubsystem.in();
+
+        if(timer > 20) {
+          m_intakeSubsystem.in();
+        }
+        timer++;
     } else {
       m_indexerSubsystem.stop();
       m_intakeSubsystem.stop();

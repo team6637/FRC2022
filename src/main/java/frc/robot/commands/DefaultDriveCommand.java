@@ -1,7 +1,6 @@
 package frc.robot.commands;
 
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.DrivetrainSubsystem;
 
@@ -22,25 +21,24 @@ public class DefaultDriveCommand extends CommandBase {
         DoubleSupplier translationXSupplier,
         DoubleSupplier translationYSupplier,
         DoubleSupplier rotationSupplier,
-        DoubleSupplier x,
-        BooleanSupplier driveIsFieldRelative) {
+        DoubleSupplier x) {
         this.m_drivetrainSubsystem = drivetrainSubsystem;
         this.m_translationXSupplier = translationXSupplier;
         this.m_translationYSupplier = translationYSupplier;
         this.m_rotationSupplier = rotationSupplier;
         this.pixyX = x;
-        this.driveIsFieldRelative = driveIsFieldRelative;
 
         addRequirements(drivetrainSubsystem);
     }
 
     @Override
     public void execute() {
-        if(driveIsFieldRelative.getAsBoolean()) {
-            drive_field_relative();
-        } else {
-            drive_robot_relative();
-        }
+        drive_robot_relative();
+        // if(driveIsFieldRelative.getAsBoolean()) {
+        //     drive_field_relative();
+        // } else {
+        //     drive_robot_relative();
+        // }
     }
 
     @Override

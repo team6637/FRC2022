@@ -5,9 +5,10 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.subsystems.DrivetrainSubsystem;
+import frc.robot.subsystems.LiftSubsystem;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -49,7 +50,10 @@ public class Robot extends TimedRobot {
 
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+        // turn off pid when telop ends
+        m_robotContainer.setLiftUsePID(false);
+  }
 
   @Override
   public void disabledPeriodic() {}
@@ -63,8 +67,6 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
     }
-
-    //m_robotContainer.resetLift();
 
   }
 
@@ -81,8 +83,9 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
-    //m_robotContainer.resetLift();
-    SmartDashboard.putString("timing", "teleop init");
+
+    // turn off pid when telop starts
+    m_robotContainer.setLiftUsePID(false);
   }
 
   /** This function is called periodically during operator control. */

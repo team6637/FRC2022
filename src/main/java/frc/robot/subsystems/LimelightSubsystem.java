@@ -7,7 +7,6 @@ package frc.robot.subsystems;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class LimelightSubsystem extends SubsystemBase {
@@ -17,7 +16,6 @@ public class LimelightSubsystem extends SubsystemBase {
 	private final NetworkTable table;
 
 	public LimelightSubsystem() {
-
 		table = NetworkTableInstance.getDefault().getTable("limelight");
 		setPipeline(0);
 		setupDriveMode();
@@ -98,7 +96,7 @@ public class LimelightSubsystem extends SubsystemBase {
 	  
 	public void setupDriveMode() {
 		setLedMode(1);
-		setCameraMode(1);
+		setCameraMode(2);
 	}
 
 	/**
@@ -113,5 +111,10 @@ public class LimelightSubsystem extends SubsystemBase {
 
   	private NetworkTableEntry getValue(String key) {
 		return table.getEntry(key);
+	}
+
+	// return inches
+	public double getDistance() {
+		return (104.0-25.0) / Math.tan(Math.toRadians(34.74 + getTx()));
 	}
 }

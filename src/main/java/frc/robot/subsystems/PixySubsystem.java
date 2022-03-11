@@ -54,7 +54,7 @@ public class PixySubsystem extends SubsystemBase {
 			largestBlock = block;
 		  }
 		}
-		this.x = (largestBlock.getX() - w/2) * -0.03;
+		this.x = (largestBlock.getX() - w/2) * -0.02;
 		this.targetIsSeen = true;
 	}
 

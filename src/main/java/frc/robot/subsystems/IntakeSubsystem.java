@@ -14,9 +14,9 @@ import static frc.robot.Constants.*;
 
 public class IntakeSubsystem extends SubsystemBase {
 
-  CANSparkMax motor;
-  DigitalInput ball1IsSeen;
-  DigitalInput ball2IsSeen;
+  private final CANSparkMax motor;
+  private DigitalInput ball1IsSeen;
+  private DigitalInput ball2IsSeen;
 
   private final double power = 0.9;
 
@@ -51,7 +51,7 @@ public class IntakeSubsystem extends SubsystemBase {
   
   @Override
   public void periodic() {
-    SmartDashboard.putBoolean("intake ball sensor 1", getBall1IsSeen());
-    SmartDashboard.putBoolean("intake ball sensor 2", getBall2IsSeen());
+    SmartDashboard.putBoolean("intake ball sensor 1", getBall1IsSeen() ? false : true);
+    SmartDashboard.putBoolean("intake ball sensor 2", getBall2IsSeen() ? false : true);
   }
 }

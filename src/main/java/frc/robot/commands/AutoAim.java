@@ -15,30 +15,34 @@ public class AutoAim extends CommandBase {
   private ShooterSubsystem m_shooterSubsystem;
   private DrivetrainSubsystem m_drivetrain_subsystem;
   private double turnKp = 0.2;
+  private double turnPower = 0.0;
+  private double turnError = 0.0;
 
   public AutoAim(LimelightSubsystem l, DrivetrainSubsystem d, ShooterSubsystem s) {
     this.m_limelightSubsystem = l;
     this.m_drivetrain_subsystem = d;
     this.m_shooterSubsystem = s;
     addRequirements(l,s);
-    SmartDashboard.putNumber("auto aim turn kp", turnKp);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
     m_limelightSubsystem.setupAutoAim();
-
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    turnKp = SmartDashboard.getNumber("auto aim turn kp", turnKp);
     if(m_limelightSubsystem.isTarget()) {
-      double turnError = m_limelightSubsystem.getTy();
-      double turnPower = turnError * turnKp;
+      turnError = m_limelightSubsystem.getTy();
+      turnPower = turnError * turnKp;
       m_drivetrain_subsystem.setLimelightTurn(turnPower);
+
+      double distance = m_limelightSubsystem.getDistance();
+
+      SmartDashboard.putNumber("limelight distance", distance);
+      m_shooterSubsystem.calculateSetpointsFromDistance(distance);
 
     } else {
       m_drivetrain_subsystem.setLimelightTurn(0.0);

@@ -5,7 +5,6 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.sensors.Pigeon2;
-import com.ctre.phoenix.sensors.PigeonIMU;
 import com.swervedrivespecialties.swervelib.Mk3SwerveModuleHelper;
 import com.swervedrivespecialties.swervelib.SdsModuleConfigurations;
 import com.swervedrivespecialties.swervelib.SwerveModule;
@@ -30,12 +29,17 @@ public class DrivetrainSubsystem extends SubsystemBase {
     private double limelightTurn = 0;
 
     // reduce to slow robot
-    public static final double MAX_VOLTAGE = 10.0;
+    public static final double MAX_VOLTAGE = 12.0;
 
-    // <Motor free speed RPM> 6380.0 / 60 * <Drive reduction> * <Wheel diameter meters> * pi
+    // 3.87119 m/s
     public static final double MAX_VELOCITY_METERS_PER_SECOND = 6380.0 / 60.0 *
         SdsModuleConfigurations.MK3_STANDARD.getDriveReduction() *
-        SdsModuleConfigurations.MK3_STANDARD.getWheelDiameter() * Math.PI;
+        SdsModuleConfigurations.MK3_STANDARD.getWheelDiameter() * Math.PI
+        / 1.074;
+
+    public double get_max_velocity() {
+        return MAX_VELOCITY_METERS_PER_SECOND;
+    }
 
     // Theoretical maximum angular velocity
     public static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = MAX_VELOCITY_METERS_PER_SECOND /
@@ -64,7 +68,6 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
     public DrivetrainSubsystem() {
         ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
-
         m_frontLeftModule = Mk3SwerveModuleHelper.createFalcon500(
                 tab.getLayout("Front Left Module", BuiltInLayouts.kList)
                     .withSize(8, 12)
@@ -140,21 +143,11 @@ public class DrivetrainSubsystem extends SubsystemBase {
     public void setModuleStates(SwerveModuleState[] states) {
         currentStates = states;
 
-        // for better auton control
-        // add pid controllers for the speed and angle
-        // what is coming through here are the targets
-        // compare them with the actual sensor values in a pid controller
-        // see the SwerveModule code in the SwerveControllerCommand example
-
         SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_VELOCITY_METERS_PER_SECOND);
         m_frontLeftModule.set(states[0].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, states[0].angle.getRadians());
-
         m_frontRightModule.set(states[1].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, states[1].angle.getRadians());
-
         m_backLeftModule.set(states[2].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, states[2].angle.getRadians());
-
         m_backRightModule.set(states[3].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, states[3].angle.getRadians());        
-   
     }
 
     public void resetOdometry(Pose2d pose) {
@@ -171,11 +164,12 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
+        SmartDashboard.putNumber("drive max velocity", MAX_VELOCITY_METERS_PER_SECOND);
         // put pose info in SmartDashboard
         SmartDashboard.putNumber("pose x", getPose().getX());
         SmartDashboard.putNumber("pose y", getPose().getY());
         SmartDashboard.putNumber("pose rotation", getPose().getRotation().getDegrees());
-        SmartDashboard.putNumber("drive gyro rotation", getGyroscopeRotation().getDegrees());
+        // SmartDashboard.putNumber("drive gyro rotation", getGyroscopeRotation().getDegrees());
         
         m_odometry.update(
             this.getGyroscopeRotation(),

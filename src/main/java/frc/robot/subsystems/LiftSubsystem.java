@@ -6,47 +6,52 @@ package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxRelativeEncoder;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import static frc.robot.Constants.*;
 
 public class LiftSubsystem extends SubsystemBase {
 
-    CANSparkMax motor1;
-    CANSparkMax motor2;
-    DutyCycleEncoder leftEncoder;
-    DutyCycleEncoder rightEncoder;
+    private final PWMSparkMax motor1;
+    private final PWMSparkMax motor2;
+    private final DutyCycleEncoder leftEncoder;
+    private final DutyCycleEncoder rightEncoder;
 
-    double liftTarget = 0.0;
-    double liftTargetMin = 0.0;
-    double liftTargetMax = 6.0;
-    boolean liftLeftWasReset = false;
-    boolean liftRightWasReset = false;
-    PIDController liftPID;
+    private double liftTarget = 0.0;
+    private double liftTargetMin = 0.0;
+    private double liftTargetMax = 6.0;
+    private boolean liftLeftWasReset = false;
+    private boolean liftRightWasReset = false;
+    private PIDController liftPID;
 
-    double liftKp = 0.8;
+    private double liftKp = 0.8;
 
-    CANSparkMax winch;
+    private final CANSparkMax winch;
 
-    double winchSetpoint = 0.0;
-    double winchSetpointMin = 0.0;
-    double winchSetpointMax = 100;
+    private double winchSetpoint = 0.0;
+    private double winchSetpointMin = 0.0;
+    private double winchSetpointMax = 100;
 
-    private RelativeEncoder winchEncoder;
+    private boolean usePID = false;
 
-    PIDController winchPID;
-    double winchKp = 0.2;
+    private final RelativeEncoder winchEncoder;
+
+    private final PIDController winchPID;
+    private final double winchKp = 0.2;
+
+    private double leftPower = 0.0;
+    private double rightPower = 0.0;
+    private double winchPower = 0.0;
 
     public LiftSubsystem() {
-        motor1 = new CANSparkMax(LIFT_LEFT, MotorType.kBrushless);
-        motor2 = new CANSparkMax(LIFT_RIGHT, MotorType.kBrushless);
-        motor1.restoreFactoryDefaults();
-        motor2.restoreFactoryDefaults();
+        motor1 = new PWMSparkMax(LIFT_LEFT);
+        motor2 = new PWMSparkMax(LIFT_RIGHT);
 
         winch = new CANSparkMax(WINCH, MotorType.kBrushless);
         winch.restoreFactoryDefaults();
@@ -111,6 +116,38 @@ public class LiftSubsystem extends SubsystemBase {
         winchSetpoint = getWinchPosition();
     }
 
+    public void doPID() {
+        if(liftTarget > liftTargetMax) liftTarget = liftTargetMax;
+        if(liftTarget < liftTargetMin) liftTarget = liftTargetMin;
+
+        if(winchSetpoint > winchSetpointMax) winchSetpoint = winchSetpointMax;
+        if(winchSetpoint < winchSetpointMin) winchSetpoint = winchSetpointMin;
+
+        leftPower = liftPID.calculate(leftEncoder.get(),  liftTarget);
+        rightPower = liftPID.calculate(rightEncoder.get(),  liftTarget);
+        winchPower = winchPID.calculate(getWinchPosition(), winchSetpoint);
+
+        motor1.set(leftPower);
+        motor2.set(rightPower);
+        winch.set(winchPower);
+        
+        //SmartDashboard.putNumber("lift winch position", getWinchPosition());
+        //SmartDashboard.putNumber("lift winch setpoint", winchSetpoint);
+        //SmartDashboard.putNumber("winch power", winchPower);
+        //SmartDashboard.putBoolean("winch at setpoint", isWinchAtSetpoint());
+        //SmartDashboard.putBoolean("lift at setpoint", isLiftAtSetpoint());
+    }
+
+    public void setUsePID(boolean v) {
+        usePID = v;
+    }
+
+    public void stopLift() {
+        motor1.set(0.0);
+        motor2.set(0.0);
+        winch.set(0.0);
+    }
+
     @Override
     public void periodic() {
 
@@ -124,37 +161,30 @@ public class LiftSubsystem extends SubsystemBase {
             liftRightWasReset = true;
         }
 
-        if(liftTarget > liftTargetMax) liftTarget = liftTargetMax;
-        if(liftTarget < liftTargetMin) liftTarget = liftTargetMin;
+        // turn on PID after an initial target was set
+        if(liftTarget != 0 && usePID == false) {
+            usePID = true;
+        }
 
-        if(winchSetpoint > winchSetpointMax) winchSetpoint = winchSetpointMax;
-        if(winchSetpoint < winchSetpointMin) winchSetpoint = winchSetpointMin;
+        doPID();
+        // if(usePID) {
+        //     doPID();
+        // } else {
+        //     stopLift();
+        // }
 
         SmartDashboard.putNumber("lift left encoder position", leftEncoder.get());
         SmartDashboard.putNumber("lift right encoder position", rightEncoder.get());
-        SmartDashboard.putNumber("lift target", liftTarget);
+        // SmartDashboard.putNumber("lift target", liftTarget);
 
-        double leftPower = liftPID.calculate(leftEncoder.get(),  liftTarget);
-        double rightPower = liftPID.calculate(rightEncoder.get(),  liftTarget);
-        double winchPower = winchPID.calculate(getWinchPosition(), winchSetpoint);
+        // SmartDashboard.putNumber("lift left power", leftPower);
+        // SmartDashboard.putNumber("lift right power", rightPower);
 
-        motor1.set(leftPower);
-        motor2.set(rightPower);
-        winch.set(winchPower);
+        // SmartDashboard.putNumber("lift left temperature", motor1.getMotorTemperature());
+        // SmartDashboard.putNumber("lift right temperature", motor2.getMotorTemperature());
+        //SmartDashboard.putNumber("lift left output", motor1.getAppliedOutput());
+        //SmartDashboard.putNumber("lift right output", motor2.getAppliedOutput());
 
-        SmartDashboard.putNumber("lift left power", leftPower);
-        SmartDashboard.putNumber("lift right power", rightPower);
-
-        SmartDashboard.putNumber("lift left temperature", motor1.getMotorTemperature());
-        SmartDashboard.putNumber("lift right temperature", motor2.getMotorTemperature());
-        SmartDashboard.putNumber("lift left output", motor1.getAppliedOutput());
-        SmartDashboard.putNumber("lift right output", motor2.getAppliedOutput());
-
-
-        //SmartDashboard.putNumber("lift winch position", getWinchPosition());
-        //SmartDashboard.putNumber("lift winch setpoint", winchSetpoint);
-        //SmartDashboard.putNumber("winch power", winchPower);
-        //SmartDashboard.putBoolean("winch at setpoint", isWinchAtSetpoint());
-        //SmartDashboard.putBoolean("lift at setpoint", isLiftAtSetpoint());
+        SmartDashboard.putNumber("winch position", getWinchPosition());
     }
 }

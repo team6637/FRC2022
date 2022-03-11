@@ -4,29 +4,22 @@
 
 package frc.robot;
 
-import java.util.Arrays;
-
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.trajectory.Trajectory;
-import edu.wpi.first.math.trajectory.TrajectoryConfig;
-import edu.wpi.first.math.trajectory.TrajectoryGenerator;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.AutoAim;
 import frc.robot.commands.DefaultDriveCommand;
 import frc.robot.commands.ShootCommand;
+import frc.robot.commands.autos.Auton1;
+import frc.robot.commands.autos.ShootThenTaxi;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.IndexerSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -46,26 +39,28 @@ public class RobotContainer {
     Joystick stick = new Joystick(0);
     Joystick stick2 = new Joystick(1);
 
-    public RobotContainer() {
+    // setup auton dropdown
+    SendableChooser<Command> m_chooser = new SendableChooser<>();
 
+
+    public RobotContainer() {
         m_drivetrainSubsystem.setDefaultCommand(new DefaultDriveCommand(
             m_drivetrainSubsystem,
             () -> modifyAxis(-stick.getY()) * DrivetrainSubsystem.MAX_VELOCITY_METERS_PER_SECOND,
             () -> modifyAxis(-stick.getX()) * DrivetrainSubsystem.MAX_VELOCITY_METERS_PER_SECOND,
             () -> modifyAxis(-stick.getTwist()) * DrivetrainSubsystem.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
-            () -> m_pixySubsystem.getX(),
-            () -> driveIsFieldRelative()
+            () -> m_pixySubsystem.getX()
         ));
-
         m_limelightSubsystem.setupDriveMode();
         configureButtonBindings();
-    }
 
-    /**
-     * Use this to pass the autonomous command to the main {@link Robot} class.
-     *
-     * @return the command to run in autonomous
-     */
+         // Add commands to the autonomous command chooser
+        m_chooser.setDefaultOption("5 Ball!!", new Auton1(m_drivetrainSubsystem, m_shooterSubsystem, m_indexerSubsystem, m_intakeSubsystem));
+        m_chooser.addOption("Shoot Then Taxi", new ShootThenTaxi());
+
+        // Put the chooser on the dashboard
+        SmartDashboard.putData(m_chooser);
+    }
 
     private void configureButtonBindings() {
 
@@ -104,7 +99,12 @@ public class RobotContainer {
         );
 
         // reset gyro
-        new JoystickButton(stick, 6).whenPressed(new InstantCommand(m_drivetrainSubsystem::zeroGyroscope, m_drivetrainSubsystem));
+        new JoystickButton(stick, 6).whenPressed(
+            new ParallelCommandGroup(    
+                new InstantCommand(m_drivetrainSubsystem::zeroGyroscope, m_drivetrainSubsystem),
+                new InstantCommand(()->m_drivetrainSubsystem.resetOdometry(new Pose2d()))
+            )
+        );
 
         // set shooter pos low close
         new JoystickButton(stick, 7).whenPressed(new InstantCommand(m_shooterSubsystem::setLowClose, m_shooterSubsystem));
@@ -240,44 +240,7 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        // ej added just to be safe
-        m_drivetrainSubsystem.resetOdometry(new Pose2d());
-
-        TrajectoryConfig config = new TrajectoryConfig(2.4, 2.0);
-        config.setKinematics(m_drivetrainSubsystem.getKinematics());
-
-        Trajectory trajectory = TrajectoryGenerator.generateTrajectory(
-            Arrays.asList(
-                new Pose2d(), 
-                new Pose2d(2.0, -2.0, new Rotation2d(0))
-            ), 
-            config
-        );
-
-        ProfiledPIDController thetaController = new ProfiledPIDController(
-            4.0, 0.0, 0.0, new TrapezoidProfile.Constraints(Math.PI, Math.PI));
-            thetaController.enableContinuousInput(-Math.PI, Math.PI);
-
-        SwerveControllerCommand swerveControllerCommand = new SwerveControllerCommand(
-            trajectory,
-            m_drivetrainSubsystem::getPose, // Functional interface to feed supplier
-            m_drivetrainSubsystem.getKinematics(),
-            new PIDController(1.0, 0, 0),
-            new PIDController(1.0, 0, 0),
-            thetaController,
-            m_drivetrainSubsystem::setModuleStates,
-            m_drivetrainSubsystem
-        );
-
-        // Reset odometry to the starting pose of the trajectory.
-        m_drivetrainSubsystem.resetOdometry(trajectory.getInitialPose());
-
-        // Run path following command, then stop at the end.
-        return swerveControllerCommand.andThen(() -> m_drivetrainSubsystem.drive( 
-            new ChassisSpeeds())
-        ); 
-
-        //return new InstantCommand();
+        return m_chooser.getSelected();
     }
 
     private static double deadband(double value, double deadband) {
@@ -294,7 +257,7 @@ public class RobotContainer {
 
     private static double modifyAxis(double value) {
         // Deadband - ignore really low numbers
-        value = deadband(value, 0.2);
+        value = deadband(value, 0.3);
 
         // Square the axis for finer lower # control (.9 * .9 = .81, .2 * .2 = .4)
         value = Math.copySign(value * value, value);
@@ -304,7 +267,7 @@ public class RobotContainer {
 
     // Get Alliance Color from throttle position of Jostick 2
     public String getAllianceColor() {
-        if(stick2.getThrottle() > 0) {
+        if(stick.getThrottle() > 0) {
             return "blue";
         } else {
             return "red";
@@ -313,7 +276,7 @@ public class RobotContainer {
 
     // Check if the robot should drive with field relative orientation
     public Boolean driveIsFieldRelative() {
-        if(stick.getThrottle() > 0) {
+        if(stick2.getThrottle() > 0) {
             return true;
         } else {
             return false;
@@ -321,5 +284,8 @@ public class RobotContainer {
     }
     public void resetLift() {
         m_liftSubsystem.resetLift();
+    }
+    public void setLiftUsePID(boolean v) {
+        m_liftSubsystem.setUsePID(v);
     }
 }
