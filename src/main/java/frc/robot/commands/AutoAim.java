@@ -17,12 +17,14 @@ public class AutoAim extends CommandBase {
   private double turnKp = 0.2;
   private double turnPower = 0.0;
   private double turnError = 0.0;
+  private boolean moveRobot;
 
-  public AutoAim(LimelightSubsystem l, DrivetrainSubsystem d, ShooterSubsystem s) {
+  public AutoAim(boolean moveRobot, LimelightSubsystem l, DrivetrainSubsystem d, ShooterSubsystem s) {
     this.m_limelightSubsystem = l;
     this.m_drivetrain_subsystem = d;
     this.m_shooterSubsystem = s;
-    addRequirements(l,s);
+    this.moveRobot = moveRobot;
+    addRequirements(l);
   }
 
   // Called when the command is initially scheduled.
@@ -35,9 +37,11 @@ public class AutoAim extends CommandBase {
   @Override
   public void execute() {
     if(m_limelightSubsystem.isTarget()) {
-      turnError = m_limelightSubsystem.getTy();
-      turnPower = turnError * turnKp;
-      m_drivetrain_subsystem.setLimelightTurn(turnPower);
+      if(moveRobot) {
+        turnError = m_limelightSubsystem.getTy();
+        turnPower = turnError * turnKp;
+        m_drivetrain_subsystem.setLimelightTurn(turnPower);
+      }
 
       double distance = m_limelightSubsystem.getDistance();
 

@@ -47,7 +47,7 @@ public class ShooterSubsystem extends SubsystemBase {
     {4.0, 1800.0},
     {7.0, 2000.0},
     {10.0, 2200.0},
-    {16.0, 3200.0}
+    {16.0, 2800.0}
   };
 
   private linearInterpolator hoodInterpolator = new linearInterpolator(hoodData);
@@ -160,5 +160,6 @@ public class ShooterSubsystem extends SubsystemBase {
     if(hoodSetpoint < hoodMin) hoodSetpoint = hoodMin;
     if(hoodSetpoint > hoodMax) hoodSetpoint = hoodMax;
     hoodMotor.set(hoodController.calculate(getHoodSensorValue(), hoodSetpoint));
+    SmartDashboard.putNumber("hood current position", getHoodSensorValue());
   }
 }

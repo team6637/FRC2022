@@ -15,7 +15,7 @@ public class DefaultDriveCommand extends CommandBase {
     private final DoubleSupplier m_rotationSupplier;
     DoubleSupplier pixyX;
     BooleanSupplier driveIsFieldRelative;
-    private double turnMultiplier = 0.6;
+    private double turnMultiplier = 0.5;
 
     public DefaultDriveCommand(DrivetrainSubsystem drivetrainSubsystem,
         DoubleSupplier translationXSupplier,

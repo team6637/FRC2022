@@ -1,0 +1,256 @@
+{
+  "tabPane": [
+    {
+      "title": "Misc",
+      "autoPopulate": false,
+      "autoPopulatePrefix": "",
+      "widgetPane": {
+        "gridSize": 16.0,
+        "showGrid": true,
+        "hgap": 16.0,
+        "vgap": 16.0,
+        "titleType": 0,
+        "tiles": {
+          "33,0": {
+            "size": [
+              5,
+              4
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/lift left output",
+              "_title": "/SmartDashboard/lift left output"
+            }
+          },
+          "38,0": {
+            "size": [
+              5,
+              4
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/lift right output",
+              "_title": "/SmartDashboard/lift right output"
+            }
+          },
+          "33,4": {
+            "size": [
+              6,
+              3
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/lift target",
+              "_title": "/SmartDashboard/lift target"
+            }
+          },
+          "27,0": {
+            "size": [
+              6,
+              3
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/hood target",
+              "_title": "/SmartDashboard/hood target"
+            }
+          },
+          "8,0": {
+            "size": [
+              6,
+              5
+            ],
+            "content": {
+              "_type": "Boolean Box",
+              "_source0": "network_table:///SmartDashboard/shooter is at target",
+              "_title": "/SmartDashboard/shooter is at target",
+              "Colors/Color when true": "#7CFC00FF",
+              "Colors/Color when false": "#8B0000FF"
+            }
+          },
+          "14,4": {
+            "size": [
+              6,
+              4
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/shooter current speed",
+              "_title": "/SmartDashboard/shooter current speed"
+            }
+          },
+          "14,0": {
+            "size": [
+              6,
+              4
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/shooter target speed",
+              "_title": "/SmartDashboard/shooter target speed"
+            }
+          },
+          "8,5": {
+            "size": [
+              6,
+              4
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/limelight distance",
+              "_title": "/SmartDashboard/limelight distance"
+            }
+          },
+          "27,3": {
+            "size": [
+              6,
+              3
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/hood current position",
+              "_title": "/SmartDashboard/hood current position"
+            }
+          }
+        }
+      }
+    },
+    {
+      "title": "Driver",
+      "autoPopulate": false,
+      "autoPopulatePrefix": "",
+      "widgetPane": {
+        "gridSize": 16.0,
+        "showGrid": true,
+        "hgap": 16.0,
+        "vgap": 16.0,
+        "titleType": 0,
+        "tiles": {
+          "27,0": {
+            "size": [
+              9,
+              5
+            ],
+            "content": {
+              "_type": "Boolean Box",
+              "_source0": "network_table:///SmartDashboard/intake ball sensor 1",
+              "_title": "/SmartDashboard/intake ball sensor 1",
+              "Colors/Color when true": "#7CFC00FF",
+              "Colors/Color when false": "#8B0000FF"
+            }
+          },
+          "27,5": {
+            "size": [
+              9,
+              5
+            ],
+            "content": {
+              "_type": "Boolean Box",
+              "_source0": "network_table:///SmartDashboard/intake ball sensor 2",
+              "_title": "/SmartDashboard/intake ball sensor 2",
+              "Colors/Color when true": "#7CFC00FF",
+              "Colors/Color when false": "#8B0000FF"
+            }
+          },
+          "12,0": {
+            "size": [
+              5,
+              5
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/pose x",
+              "_title": "/SmartDashboard/pose x"
+            }
+          },
+          "12,5": {
+            "size": [
+              5,
+              5
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/pose y",
+              "_title": "/SmartDashboard/pose y"
+            }
+          },
+          "36,0": {
+            "size": [
+              11,
+              3
+            ],
+            "content": {
+              "_type": "ComboBox Chooser",
+              "_source0": "network_table:///SmartDashboard/SendableChooser[0]",
+              "_title": "/SmartDashboard/SendableChooser[0]"
+            }
+          },
+          "7,0": {
+            "size": [
+              5,
+              5
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/pose rotation",
+              "_title": "/SmartDashboard/pose rotation"
+            }
+          },
+          "20,5": {
+            "size": [
+              5,
+              5
+            ],
+            "content": {
+              "_type": "Boolean Box",
+              "_source0": "network_table:///SmartDashboard/pixy sees target",
+              "_title": "/SmartDashboard/pixy sees target",
+              "Colors/Color when true": "#7CFC00FF",
+              "Colors/Color when false": "#8B0000FF"
+            }
+          }
+        }
+      }
+    },
+    {
+      "title": "Tab 4",
+      "autoPopulate": false,
+      "autoPopulatePrefix": "",
+      "widgetPane": {
+        "gridSize": 16.0,
+        "showGrid": true,
+        "hgap": 16.0,
+        "vgap": 16.0,
+        "titleType": 0,
+        "tiles": {
+          "15,0": {
+            "size": [
+              16,
+              10
+            ],
+            "content": {
+              "_type": "Graph",
+              "_source0": "network_table:///SmartDashboard/shooter target speed",
+              "_source1": "network_table:///SmartDashboard/shooter current speed",
+              "_title": "SmartDashboard/shooter current speed",
+              "Graph/Visible time": 30.0,
+              "Graph/X-axis auto scrolling": true,
+              "Y-axis/Automatic bounds": true,
+              "Y-axis/Upper bound": 1.0,
+              "Y-axis/Lower bound": -1.0,
+              "Y-axis/Unit": "ul",
+              "Visible data/SmartDashboard/shooter current speed": true,
+              "Visible data/SmartDashboard/shooter target speed": true
+            }
+          }
+        }
+      }
+    }
+  ],
+  "windowGeometry": {
+    "x": -6.400000095367432,
+    "y": 333.6000061035156,
+    "width": 1536.0,
+    "height": 480.0
+  }
+}

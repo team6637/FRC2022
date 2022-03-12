@@ -10,9 +10,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class LimelightSubsystem extends SubsystemBase {
-	/**
-	 * Creates a new LimelightSubsystem.
-	 */
+	
 	private final NetworkTable table;
 
 	public LimelightSubsystem() {
@@ -61,50 +59,29 @@ public class LimelightSubsystem extends SubsystemBase {
 		return getValue("ts").getDouble(0.0);
 	}
 
-	/**
-	 * Sets LED mode of Limelight.
-	 * 
-	 * @param mode
-	 * Light mode for Limelight.
-	 */
 	public void setLedMode(int ledMode) {
 		getValue("ledMode").setNumber(ledMode);
   	}
   
-	/**
-	 * Sets camera mode for Limelight.
-	 * 
-	 * @param mode
-	 *            Camera mode for Limelight.
-	 */
 	public void setCameraMode(int cameraMode) {
 		getValue("camMode").setNumber(cameraMode);
-  }
-  
-  public void setCameraMode0() {
-    setCameraMode(0);
-  }
+ 	}
 
-  public void setCameraMode1() {
-    setCameraMode(1);
-	}
+	public void setStream(int streamMode) {
+		getValue("stream").setNumber(streamMode);
+ 	}
 	
 	public void setupAutoAim() {
 		setLedMode(3);
 		setCameraMode(0);
-	  }
+	}
 	  
 	public void setupDriveMode() {
 		setLedMode(1);
-		setCameraMode(2);
+		setCameraMode(0);
+		setStream(2);
 	}
 
-	/**
-	 * Sets pipeline number (0-9 value).
-	 * 
-	 * @param number
-	 *            Pipeline number (0-9).
-	 */
 	public void setPipeline(int number) {
 		getValue("pipeline").setNumber(number);
 	}

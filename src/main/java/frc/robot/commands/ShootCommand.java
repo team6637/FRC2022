@@ -16,6 +16,7 @@ public class ShootCommand extends CommandBase {
   IntakeSubsystem m_intakeSubsystem;
 
   private int timer;
+  private int justShootItTimer;
 
 
   public ShootCommand(ShooterSubsystem s, IndexerSubsystem index, IntakeSubsystem intake) {
@@ -29,6 +30,7 @@ public class ShootCommand extends CommandBase {
   @Override
   public void initialize() {
     timer = 0;
+    justShootItTimer = 0;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -36,17 +38,19 @@ public class ShootCommand extends CommandBase {
   public void execute() {
     m_shooterSubsystem.shoot();
 
-    if(m_shooterSubsystem.atTargetVelocity()) {
+    if(m_shooterSubsystem.atTargetVelocity() || justShootItTimer > 300) {
         m_indexerSubsystem.in();
 
-        if(timer > 20) {
+        if(timer > 50) {
           m_intakeSubsystem.in();
         }
         timer++;
     } else {
       m_indexerSubsystem.stop();
       m_intakeSubsystem.stop();
+      justShootItTimer++;
     }
+
   }
 
   // Called once the command ends or is interrupted.
