@@ -20,7 +20,6 @@ import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.command.WaitCommand;
-import edu.wpi.first.wpilibj.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -99,7 +98,23 @@ public class Auton1 extends SequentialCommandGroup {
         m_drivetrainSubsystem
     );
 
+    // Drive to Ball 3
+    PathPlannerTrajectory pathToBall3 = PathPlanner.loadPath("Ball2ToBall3", m_drivetrainSubsystem.get_max_velocity(), 3.0);
+    PPSwerveControllerCommand command3 = new PPSwerveControllerCommand(
+        pathToBall3,
+        m_drivetrainSubsystem::getPose, // Functional interface to feed supplier
+        m_drivetrainSubsystem.getKinematics(),
+        new PIDController(AUTON_X_KP, 0.0, 0.0),
+        new PIDController(AUTON_Y_KP, 0.0, 0.0),
+        thetaController,
+        m_drivetrainSubsystem::setModuleStates,
+        m_drivetrainSubsystem
+    );
+
     addCommands(
+
+        // DRIVE FORWARD
+
         // reset odomotry
         new InstantCommand(()->m_drivetrainSubsystem.resetOdometry(new Pose2d(7.639, 1.5, new Rotation2d(Math.toRadians(-90.0)))), m_drivetrainSubsystem),
 
@@ -112,6 +127,10 @@ public class Auton1 extends SequentialCommandGroup {
         // stop intake
         new InstantCommand(m_intakeSubsystem::stop, m_intakeSubsystem),
 
+
+
+        // BALL 1 TO BALL 2
+
         // reset odometry
         new InstantCommand(()->m_drivetrainSubsystem.resetOdometry(new Pose2d(7.64, 0.59, new Rotation2d(Math.toRadians(-90.0)))), m_drivetrainSubsystem),
 
@@ -121,9 +140,12 @@ public class Auton1 extends SequentialCommandGroup {
 
         // aim, shoot
         new ParallelCommandGroup(
-            new AutoAim(false, m_limelightSubsystem, m_drivetrainSubsystem, m_shooterSubsystem).withTimeout(2.0),
-            new ShootCommand(m_shooterSubsystem, m_indexerSubsystem, m_intakeSubsystem).withTimeout(2.0)
+            new AutoAim(false, m_limelightSubsystem, m_drivetrainSubsystem, m_shooterSubsystem).withTimeout(2.5),
+            new ShootCommand(m_shooterSubsystem, m_indexerSubsystem, m_intakeSubsystem).withTimeout(2.5)
         ),
+
+
+        // GET SECOND BALL
 
         // turn intake on, reset post, drive forward, stop
         new InstantCommand(m_intakeSubsystem::in, m_intakeSubsystem),
@@ -135,9 +157,24 @@ public class Auton1 extends SequentialCommandGroup {
 
         // aim, shoot
         new ParallelCommandGroup(
-            new AutoAim(false, m_limelightSubsystem, m_drivetrainSubsystem, m_shooterSubsystem).withTimeout(1.0),
-            new ShootCommand(m_shooterSubsystem, m_indexerSubsystem, m_intakeSubsystem).withTimeout(1.0)
-        )
+            new AutoAim(false, m_limelightSubsystem, m_drivetrainSubsystem, m_shooterSubsystem).withTimeout(1.3),
+            new ShootCommand(m_shooterSubsystem, m_indexerSubsystem, m_intakeSubsystem).withTimeout(1.3)
+        ),
+
+
+        // BALL 2 TO BALL 3
+
+        new InstantCommand(m_intakeSubsystem::in, m_intakeSubsystem),
+
+        // reset odometry
+        new InstantCommand(()->m_drivetrainSubsystem.resetOdometry(new Pose2d(5.01, 1.78, new Rotation2d(Math.toRadians(36.6)))), m_drivetrainSubsystem),
+
+        // drive then stop
+        command3,
+        new InstantCommand(()->m_drivetrainSubsystem.drive(new ChassisSpeeds()), m_drivetrainSubsystem),
+
+        new RunCommand(m_intakeSubsystem::in, m_intakeSubsystem).withTimeout(2),
+        new InstantCommand(m_intakeSubsystem::stop, m_intakeSubsystem)
 
     );
   }

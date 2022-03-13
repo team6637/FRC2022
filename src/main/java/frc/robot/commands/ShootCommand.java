@@ -18,6 +18,7 @@ public class ShootCommand extends CommandBase {
   private int timer;
   private int justShootItTimer;
 
+  private boolean indexOn = false;
 
   public ShootCommand(ShooterSubsystem s, IndexerSubsystem index, IntakeSubsystem intake) {
     m_shooterSubsystem = s;
@@ -31,6 +32,7 @@ public class ShootCommand extends CommandBase {
   public void initialize() {
     timer = 0;
     justShootItTimer = 0;
+    indexOn = false;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -38,18 +40,27 @@ public class ShootCommand extends CommandBase {
   public void execute() {
     m_shooterSubsystem.shoot();
 
-    if(m_shooterSubsystem.atTargetVelocity() || justShootItTimer > 300) {
+    if((m_shooterSubsystem.atTargetVelocity() || justShootItTimer > 50) && indexOn == false) {
         m_indexerSubsystem.in();
 
-        if(timer > 50) {
-          m_intakeSubsystem.in();
-        }
-        timer++;
-    } else {
-      m_indexerSubsystem.stop();
-      m_intakeSubsystem.stop();
-      justShootItTimer++;
+        // if(timer > 30) {
+        //   m_intakeSubsystem.in();
+        // }
+        // timer++;
+        indexOn = true;
+
+    } else if(indexOn && m_shooterSubsystem.atTargetVelocity() && timer > 30) {
+
+      m_intakeSubsystem.in();
+
     }
+
+    justShootItTimer++;
+
+    if(indexOn) timer++;
+
+    SmartDashboard.putNumber("shooter just shoot timer", justShootItTimer);
+    SmartDashboard.putNumber("shooter timer", timer);
 
   }
 

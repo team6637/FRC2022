@@ -20,7 +20,7 @@ import frc.robot.commands.DefaultDriveCommand;
 import frc.robot.commands.ShootCommand;
 import frc.robot.commands.autos.Auton1;
 import frc.robot.commands.autos.ShootThenTaxi;
-import frc.robot.commands.autos.TestShoot;
+import frc.robot.commands.autos.Test;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.IndexerSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -58,7 +58,7 @@ public class RobotContainer {
          // Add commands to the autonomous command chooser
         m_chooser.setDefaultOption("5 Ball!!", new Auton1(m_drivetrainSubsystem, m_shooterSubsystem, m_indexerSubsystem, m_intakeSubsystem, m_limelightSubsystem));
         m_chooser.addOption("Shoot Then Taxi", new ShootThenTaxi());
-        m_chooser.addOption("Test Shoot", new TestShoot(m_drivetrainSubsystem, m_shooterSubsystem, m_indexerSubsystem, m_intakeSubsystem, m_limelightSubsystem));
+        m_chooser.addOption("Test", new Test(m_drivetrainSubsystem, m_shooterSubsystem, m_indexerSubsystem, m_intakeSubsystem, m_limelightSubsystem));
 
         // Put the chooser on the dashboard
         SmartDashboard.putData(m_chooser);
