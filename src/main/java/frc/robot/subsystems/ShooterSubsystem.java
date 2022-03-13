@@ -6,7 +6,7 @@ package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.Rev2mDistanceSensor;
-import com.revrobotics.SparkMaxPIDController;
+import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.Rev2mDistanceSensor.Port;
 
@@ -26,12 +26,13 @@ public class ShooterSubsystem extends SubsystemBase {
   private final CANSparkMax motor2;
   private final CANSparkMax hoodMotor;
 
-  private final Encoder velocityEncoder = new Encoder(SHOOTER_ENCODER_1, SHOOTER_ENCODER_2);
+  private final Encoder velocityEncoder;
   private final BangBangController shooterController;
-  private final SimpleMotorFeedforward feedforward;
-  private double kV = 0.0;
-  private double kA = 0.0;
-  private double kS = 0.0;
+  private final SimpleMotorFeedforward shooterFeedforward;
+
+  private double kV = 1.0649;
+  private double kA = 0.1734;
+  private double kS = 0.043173;
 
   private double shooterSetpoint = 2000.0;
 
@@ -43,10 +44,9 @@ public class ShooterSubsystem extends SubsystemBase {
 
   private double shooterPower = 0.0;
 
-
   private double [][] hoodData = {
-    {5.0, 1.85}, // 70 inches
-    {8.0, 2.5}, // 110 inches
+    {5.0, 1.85},
+    {8.0, 2.5},
     {11.0, 2.5},
     {14.0, 3.0}
   };
@@ -58,21 +58,24 @@ public class ShooterSubsystem extends SubsystemBase {
     {14.0, 2800.0}
   };
 
-  private linearInterpolator hoodInterpolator = new linearInterpolator(hoodData);
-  private linearInterpolator rpmInterpolator = new linearInterpolator(rpmData);
-
+  private final linearInterpolator hoodInterpolator = new linearInterpolator(hoodData);
+  private final linearInterpolator rpmInterpolator = new linearInterpolator(rpmData);
 
   private final Rev2mDistanceSensor hoodDistanceSensor;
 
   public ShooterSubsystem() {
     motor1 = new CANSparkMax(SHOOTER_LEFT, MotorType.kBrushless);
     motor1.restoreFactoryDefaults();
+    motor1.setIdleMode(IdleMode.kCoast);
 
     motor2 = new CANSparkMax(SHOOTER_RIGHT, MotorType.kBrushless);
     motor2.restoreFactoryDefaults();
+
     motor1.setInverted(false);
     motor2.setInverted(true);
-    //motor2.follow(motor1);
+
+    velocityEncoder = new Encoder(SHOOTER_ENCODER_1, SHOOTER_ENCODER_2); 
+    velocityEncoder.setSamplesToAverage(50); // default was 4
 
     hoodMotor = new CANSparkMax(HOOD, MotorType.kBrushless);
     hoodMotor.restoreFactoryDefaults();
@@ -85,7 +88,7 @@ public class ShooterSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("hood target", hoodSetpoint);
 
     shooterController = new BangBangController();
-    feedforward = new SimpleMotorFeedforward(kS, kV, kA);
+    shooterFeedforward = new SimpleMotorFeedforward(kS, kV, kA);
     
   }
 
@@ -96,57 +99,13 @@ public class ShooterSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("shooter current speed", getSpeed());
     SmartDashboard.putBoolean("shooter is at target", atTargetVelocity());
 
+    double encoderPower = shooterController.calculate(getSpeed(), shooterSetpoint);
+    double velocityPerSecond = shooterSetpoint/60 * .015;
+    double feedForwardPower = 0.95 * shooterFeedforward.calculate(velocityPerSecond, velocityPerSecond*2);
 
-    // read PID coefficients from SmartDashboard
-    // double p = SmartDashboard.getNumber("P Gain", 0);
-    // double i = SmartDashboard.getNumber("I Gain", 0);
-    // double d = SmartDashboard.getNumber("D Gain", 0);
-    // double iz = SmartDashboard.getNumber("I Zone", 0);
-    // double ff = SmartDashboard.getNumber("Feed Forward", 0);
-    // double max = SmartDashboard.getNumber("Max Output", 0);
-    // double min = SmartDashboard.getNumber("Min Output", 0);
-
-    // if PID coefficients on SmartDashboard have changed, write new values to controller
-    // if((p != kP)) { m_pidController.setP(p); kP = p; }
-    // if((i != kI)) { m_pidController.setI(i); kI = i; }
-    // if((d != kD)) { m_pidController.setD(d); kD = d; }
-    // if((iz != kIz)) { m_pidController.setIZone(iz); kIz = iz; }
-    // if((ff != kFF)) { m_pidController.setFF(ff); kFF = ff; }
-    // if((max != kMaxOutput) || (min != kMinOutput)) { 
-    //   m_pidController.setOutputRange(min, max); 
-    //   kMinOutput = min; kMaxOutput = max; 
-    // }
-
-    /**
-     * PIDController objects are commanded to a set point using the 
-     * SetReference() method.
-     * 
-     * The first parameter is the value of the set point, whose units vary
-     * depending on the control type set in the second parameter.
-     * 
-     * The second parameter is the control type can be set to one of four 
-     * parameters:
-     *  com.revrobotics.CANSparkMax.ControlType.kDutyCycle
-     *  com.revrobotics.CANSparkMax.ControlType.kPosition
-     *  com.revrobotics.CANSparkMax.ControlType.kVelocity
-     *  com.revrobotics.CANSparkMax.ControlType.kVoltage
-     */
-    //m_pidController.setReference(shooterSetpoint, CANSparkMax.ControlType.kVelocity);
-    
-
-
-
-
-
-
-
-    shooterPower = shooterController.calculate(getSpeed(), shooterSetpoint);
+    shooterPower = encoderPower + feedForwardPower;
     motor1.set(shooterPower);
     motor2.set(shooterPower);
-
-
-
-
   }
 
   public void stop() {
@@ -171,12 +130,8 @@ public class ShooterSubsystem extends SubsystemBase {
     double hoodPostion = hoodInterpolator.getInterpolatedValue(distanceInFeet);
     double speed = rpmInterpolator.getInterpolatedValue(distanceInFeet);
 
-    SmartDashboard.putNumber("shooter target hood from limelight", hoodPostion);
-    SmartDashboard.putNumber("shooter target rpm from limelight", speed);
-
     setSetpoints(speed, hoodPostion);
   }
-
 
   public void setLowClose() {
     setSetpoints(700.0, 4.0);

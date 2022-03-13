@@ -8,6 +8,8 @@ import com.ctre.phoenix.sensors.CANCoderStatusFrame;
 import com.swervedrivespecialties.swervelib.AbsoluteEncoder;
 import com.swervedrivespecialties.swervelib.AbsoluteEncoderFactory;
 
+import edu.wpi.first.wpilibj.DriverStation;
+
 public class CanCoderFactoryBuilder {
     private Direction direction = Direction.COUNTER_CLOCKWISE;
     private int periodMilliseconds = 10;
@@ -50,16 +52,17 @@ public class CanCoderFactoryBuilder {
 
         @Override
         public double getAbsoluteAngle() {
-            double angle = Math.toRadians(encoder.getAbsolutePosition());
+            double angle = Math.toRadians(encoder.getPosition());
 
             ErrorCode code = encoder.getLastError();
 
             for (int i = 0; i < ATTEMPTS; i++) {
-                if (code == ErrorCode.OK) break;
+                if (code == ErrorCode.OK) break;            
                 try {
                     Thread.sleep(10);
+                    DriverStation.reportError(String.format("%s: %s", "Message from Eric", "attempts: " + ATTEMPTS), false);
                 } catch (InterruptedException e) { }
-                angle = Math.toRadians(encoder.getAbsolutePosition());
+                angle = Math.toRadians(encoder.getPosition());
                 code = encoder.getLastError();
             }
 

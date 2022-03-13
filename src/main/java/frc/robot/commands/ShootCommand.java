@@ -11,14 +11,14 @@ import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 
 public class ShootCommand extends CommandBase {
-  ShooterSubsystem m_shooterSubsystem;
-  IndexerSubsystem m_indexerSubsystem;
-  IntakeSubsystem m_intakeSubsystem;
+  private final ShooterSubsystem m_shooterSubsystem;
+  private final IndexerSubsystem m_indexerSubsystem;
+  private final IntakeSubsystem m_intakeSubsystem;
 
-  private int timer;
   private int justShootItTimer;
+  private int intakeDelayTimer;
 
-  private boolean indexOn = false;
+  private boolean indexerOn = false;
 
   public ShootCommand(ShooterSubsystem s, IndexerSubsystem index, IntakeSubsystem intake) {
     m_shooterSubsystem = s;
@@ -27,44 +27,33 @@ public class ShootCommand extends CommandBase {
     addRequirements(s, index, intake);
   }
 
-  // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    timer = 0;
+    intakeDelayTimer = 0;
     justShootItTimer = 0;
-    indexOn = false;
+    indexerOn = false;
   }
 
-  // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
     m_shooterSubsystem.shoot();
 
-    if((m_shooterSubsystem.atTargetVelocity() || justShootItTimer > 50) && indexOn == false) {
+    if((m_shooterSubsystem.atTargetVelocity() || justShootItTimer > 50) && indexerOn == false) {
         m_indexerSubsystem.in();
-
-        // if(timer > 30) {
-        //   m_intakeSubsystem.in();
-        // }
-        // timer++;
-        indexOn = true;
-
-    } else if(indexOn && m_shooterSubsystem.atTargetVelocity() && timer > 30) {
-
+        indexerOn = true;
+    } else if(indexerOn && m_shooterSubsystem.atTargetVelocity() && intakeDelayTimer > 30) {
       m_intakeSubsystem.in();
-
+    } else {
+      justShootItTimer++;
     }
 
-    justShootItTimer++;
-
-    if(indexOn) timer++;
+    if(indexerOn) intakeDelayTimer++;
 
     SmartDashboard.putNumber("shooter just shoot timer", justShootItTimer);
-    SmartDashboard.putNumber("shooter timer", timer);
+    SmartDashboard.putNumber("shooter timer", intakeDelayTimer);
 
   }
 
-  // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
     m_indexerSubsystem.stop();
@@ -72,7 +61,6 @@ public class ShootCommand extends CommandBase {
     m_shooterSubsystem.stop();
   }
 
-  // Returns true when the command should end.
   @Override
   public boolean isFinished() {
     return false;
